@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,6 +92,7 @@ class MainActivity : ComponentActivity() {
       com.paytracker.nativeapp.ui.theme.PayTrackerTheme(useDarkTheme = darkMode) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scopeDrawer = rememberCoroutineScope()
+        val addClientRequest = remember { mutableStateOf(false) }
         val navController = rememberNavController()
         val backStack by navController.currentBackStackEntryAsState()
         val currentRoute = backStack?.destination?.route ?: "payments"
@@ -139,7 +141,7 @@ class MainActivity : ComponentActivity() {
               if (currentRoute == "payments") {
                 FloatingActionButton(onClick = { showDialog = true; editTarget = null }) { Icon(Icons.Default.Add, contentDescription = "Add") }
               } else if (currentRoute == "clients") {
-                FloatingActionButton(onClick = { /* open client dialog via nav state */ showClientDialog.value = true }) { Icon(Icons.Default.Add, contentDescription = "Add Client") }
+                FloatingActionButton(onClick = { addClientRequest.value = true }) { Icon(Icons.Default.Add, contentDescription = "Add Client") }
               }
             }
           ) { padding ->
@@ -147,6 +149,7 @@ class MainActivity : ComponentActivity() {
               NavHost(navController = navController, startDestination = "payments") {
                 composable("payments") {
                   PaymentsScreen(
+                    repo = repo,
                     items = items,
                     loading = loading,
                     query = query,
@@ -160,11 +163,10 @@ class MainActivity : ComponentActivity() {
                   )
                 }
                 composable("clients") {
-                  val showClientDialog = remember { mutableStateOf(false) }
                   ClientsScreen(
                     repo = repo,
                     onRefresh = { scope.launch { refresh() } },
-                    externalShowAdd = showClientDialog
+                    externalShowAdd = addClientRequest
                   )
                 }
                 composable("settings") {
@@ -223,6 +225,7 @@ fun StatusBadge(status: String) {
 
 @Composable
 fun PaymentsScreen(
+  repo: Repository,
   items: List<PaymentWithClient>,
   loading: Boolean,
   query: TextFieldValue,
@@ -236,6 +239,24 @@ fun PaymentsScreen(
 ) {
   Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
     Text("PayTracker Native", style = MaterialTheme.typography.headlineSmall)
+
+    // Summary cards
+    val totalPaid = items.filter { it.payment.status == "paid" }.sumOf { it.payment.amount }
+    val outstanding = items.filter { it.payment.status != "paid" }.sumOf { it.payment.amount }
+    val overdueCount = items.count { it.payment.status != "paid" && it.payment.dueDate < System.currentTimeMillis() }
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+      ElevatedCard(Modifier.weight(1f)) { Column(Modifier.padding(12.dp)) { Text("Total Paid", style = MaterialTheme.typography.labelMedium); Text("₱" + String.format("%.2f", totalPaid), style = MaterialTheme.typography.titleMedium) } }
+      ElevatedCard(Modifier.weight(1f)) { Column(Modifier.padding(12.dp)) { Text("Outstanding", style = MaterialTheme.typography.labelMedium); Text("₱" + String.format("%.2f", outstanding), style = MaterialTheme.typography.titleMedium) } }
+      ElevatedCard(Modifier.weight(1f)) { Column(Modifier.padding(12.dp)) { Text("Overdue", style = MaterialTheme.typography.labelMedium); Text(overdueCount.toString(), style = MaterialTheme.typography.titleMedium) } }
+    }
+
+    // Filters
+    var clientFilter by remember { mutableStateOf("All") }
+    var sortBy by remember { mutableStateOf("Newest") }
+    var clients by remember { mutableStateOf<List<com.paytracker.nativeapp.data.ClientEntity>>(emptyList()) }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(Unit) { scope.launch { clients = repo.listClients() } }
+
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
       OutlinedTextField(value = query, onValueChange = onQueryChange, modifier = Modifier.weight(1f), label = { Text("Search") })
       var expanded by remember { mutableStateOf(false) }
@@ -247,9 +268,54 @@ fun PaymentsScreen(
           }
         }
       }
+      var expandedClient by remember { mutableStateOf(false) }
+      Box {
+        OutlinedButton(onClick = { expandedClient = true }) { Text(clientFilter) }
+        DropdownMenu(expanded = expandedClient, onDismissRequest = { expandedClient = false }) {
+          DropdownMenuItem(text = { Text("All") }, onClick = { clientFilter = "All"; expandedClient = false })
+          clients.forEach { c -> DropdownMenuItem(text = { Text(c.name) }, onClick = { clientFilter = c.name; expandedClient = false }) }
+        }
+      }
+      var expandedSort by remember { mutableStateOf(false) }
+      Box {
+        OutlinedButton(onClick = { expandedSort = true }) { Text(sortBy) }
+        DropdownMenu(expanded = expandedSort, onDismissRequest = { expandedSort = false }) {
+          listOf("Newest","Oldest","Amount High","Amount Low","Due Soonest").forEach { s -> DropdownMenuItem(text = { Text(s) }, onClick = { sortBy = s; expandedSort = false }) }
+        }
+      }
       ElevatedButton(onClick = onAdd) { Text("Add") }
       OutlinedButton(onClick = onBackup) { Text("Backup") }
       OutlinedButton(onClick = onRestore) { Text("Restore") }
+      // Export CSV
+      val ctx = LocalContext.current
+      val createCsv = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+        if (uri != null) {
+          val csv = runBlocking { repo.exportPaymentsCsv() }
+          ctx.contentResolver.openOutputStream(uri)?.use { out -> out.write(csv.toByteArray()) }
+        }
+      }
+      OutlinedButton(onClick = { createCsv.launch("payments.csv") }) { Text("CSV") }
+      // Export PDF
+      val createPdf = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri ->
+        if (uri != null) {
+          val pdf = android.graphics.pdf.PdfDocument()
+          val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(595, 842, 1).create()
+          val page = pdf.startPage(pageInfo)
+          val paint = android.graphics.Paint().apply { textSize = 12f }
+          var y = 40
+          page.canvas.drawText("Payments Report", 40f, y.toFloat(), paint); y += 20
+          val header = "Invoice | Client | Amount | Due | Status"
+          page.canvas.drawText(header, 40f, y.toFloat(), paint); y += 20
+          items.take(35).forEach { r ->
+            val line = "${r.payment.invoiceNumber} | ${r.clientName} | ₱${String.format("%.2f", r.payment.amount)} | ${java.text.SimpleDateFormat("yyyy-MM-dd").format(java.util.Date(r.payment.dueDate))} | ${r.payment.status}"
+            page.canvas.drawText(line, 40f, y.toFloat(), paint); y += 18
+          }
+          pdf.finishPage(page)
+          ctx.contentResolver.openOutputStream(uri)?.use { out -> pdf.writeTo(out) }
+          pdf.close()
+        }
+      }
+      OutlinedButton(onClick = { createPdf.launch("payments.pdf") }) { Text("PDF") }
     }
     ElevatedCard(Modifier.fillMaxSize()) {
       if (loading) {
@@ -257,20 +323,44 @@ fun PaymentsScreen(
       } else {
         val filtered = items.filter { row ->
           (query.text.isBlank() || row.clientName.contains(query.text, ignoreCase = true) || (row.payment.description?.contains(query.text, true) ?: false)) &&
-          (status == "all" || row.payment.status == status)
+          (status == "all" || row.payment.status == status) &&
+          (clientFilter == "All" || row.clientName == clientFilter)
+        }
+        val sorted = when (sortBy) {
+          "Oldest" -> filtered.sortedBy { it.payment.createdAt }
+          "Amount High" -> filtered.sortedByDescending { it.payment.amount }
+          "Amount Low" -> filtered.sortedBy { it.payment.amount }
+          "Due Soonest" -> filtered.sortedBy { it.payment.dueDate }
+          else -> filtered.sortedByDescending { it.payment.createdAt }
         }
         LazyColumn(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-          items(filtered) { row ->
+          items(sorted) { row ->
             ElevatedCard(Modifier.fillMaxWidth()) {
               Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                   Text(row.clientName, style = MaterialTheme.typography.titleMedium)
-                  Text(row.payment.description ?: row.payment.invoiceNumber, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                  val dueMs = row.payment.dueDate
+                  val daysLeft = ((dueMs - System.currentTimeMillis()) / 86_400_000L).toInt()
+                  val sub = (row.payment.description ?: row.payment.invoiceNumber) + if (row.payment.status != "paid") {
+                    when {
+                      daysLeft < 0 -> " • Overdue by ${-daysLeft}d"
+                      daysLeft <= 3 -> " • Due in ${daysLeft}d"
+                      else -> ""
+                    }
+                  } else ""
+                  Text(sub, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                   StatusBadge(row.payment.status)
                   Text("₱" + String.format("%.2f", row.payment.amount), style = MaterialTheme.typography.bodyMedium)
                   TextButton(onClick = { onEdit(row) }) { Text("Edit") }
+                  if (row.payment.status != "paid") {
+                    TextButton(onClick = {
+                      val p = row.payment.copy(status = "paid", paidDate = System.currentTimeMillis())
+                      val scopeRow = rememberCoroutineScope()
+                      scopeRow.launch { repo.upsertPayment(p) }
+                    }) { Text("Mark Paid") }
+                  }
                 }
               }
             }

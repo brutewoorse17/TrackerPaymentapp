@@ -18,66 +18,55 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { downloadCSV } from "@/lib/utils";
 import type { ClientWithStats } from "@shared/schema";
+import { saveTextFile, type StorageLocation } from "@/lib/backup";
 
 export function ExportDialog() {
   const [open, setOpen] = useState(false);
   const [format, setFormat] = useState<"csv" | "xlsx" | "pdf">("csv");
   const [scope, setScope] = useState<"clients" | "payments">("clients");
   const [clientFilter, setClientFilter] = useState<string>("");
+  const [location, setLocation] = useState<StorageLocation>("data");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string>("");
 
   const { data: clients } = useQuery<ClientWithStats[]>({ queryKey: ["/api/clients"] });
 
   const onExport = async () => {
-    // For offline mode, we have CSV readily. For xlsx/pdf, we generate minimal versions in-browser.
-    const fileBase = clientFilter ? `${scope}-${clientFilter}` : scope;
-
-    if (format === "csv") {
+    setBusy(true);
+    setMessage("");
+    try {
       const endpoint = scope === "clients" ? "/api/export/clients" : "/api/export/payments";
       const res = await fetch(endpoint);
       const csv = await res.text();
-      downloadCSV(csv, `${fileBase}.csv`);
-      setOpen(false);
-      return;
-    }
+      const base = clientFilter ? `${scope}-${clientFilter}` : scope;
 
-    if (format === "xlsx") {
-      // Generate a simple TSV that Excel can open, as a lightweight stand-in
-      const endpoint = scope === "clients" ? "/api/export/clients" : "/api/export/payments";
-      const res = await fetch(endpoint);
-      const csv = await res.text();
-      const tsv = csv.replace(/,/g, "\t");
-      const blob = new Blob([tsv], { type: "text/tab-separated-values" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${fileBase}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      setOpen(false);
-      return;
-    }
+      if (format === "csv") {
+        const uri = await saveTextFile(`${base}.csv`, csv, "text/csv", location);
+        setMessage(`Saved to ${uri}`);
+        setOpen(false);
+        return;
+      }
 
-    if (format === "pdf") {
-      // Minimal PDF-like download using a plain text fallback
-      const endpoint = scope === "clients" ? "/api/export/clients" : "/api/export/payments";
-      const res = await fetch(endpoint);
-      const csv = await res.text();
-      const text = `Report: ${scope}\n\n` + csv;
-      const blob = new Blob([text], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${fileBase}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      setOpen(false);
-      return;
+      if (format === "xlsx") {
+        const tsv = csv.replace(/,/g, "\t");
+        const uri = await saveTextFile(`${base}.xlsx`, tsv, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", location);
+        setMessage(`Saved to ${uri}`);
+        setOpen(false);
+        return;
+      }
+
+      if (format === "pdf") {
+        const text = `Report: ${scope}\n\n` + csv;
+        const uri = await saveTextFile(`${base}.pdf`, text, "application/pdf", location);
+        setMessage(`Saved to ${uri}`);
+        setOpen(false);
+        return;
+      }
+    } catch (err: any) {
+      setMessage(`Export failed: ${err.message || err}`);
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -89,7 +78,7 @@ export function ExportDialog() {
           Export
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle>Export Options</DialogTitle>
         </DialogHeader>
@@ -140,10 +129,24 @@ export function ExportDialog() {
             </Select>
           </div>
 
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={onExport} className="touch-manipulation">Download</Button>
+          <div>
+            <Label>Save to</Label>
+            <Select value={location} onValueChange={(v: any) => setLocation(v)}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Choose location" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="data">App Data (internal)</SelectItem>
+                <SelectItem value="documents">Documents (user-visible)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>Cancel</Button>
+            <Button onClick={onExport} className="touch-manipulation" disabled={busy}>{busy ? 'Saving...' : 'Save'}</Button>
+          </div>
+          {message && <div className="text-xs text-slate-600">{message}</div>}
         </div>
       </DialogContent>
     </Dialog>

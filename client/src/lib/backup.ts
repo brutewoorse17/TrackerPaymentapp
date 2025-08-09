@@ -6,6 +6,18 @@ function toDirectory(location: StorageLocation): 'DOCUMENTS' | 'DATA' {
   return location === 'documents' ? 'DOCUMENTS' : 'DATA';
 }
 
+export async function saveTextFile(filename: string, data: string, mime: string, location: StorageLocation = 'data'): Promise<string> {
+  const { Filesystem } = await import('@capacitor/filesystem');
+  const base64 = typeof btoa === 'function' ? btoa(unescape(encodeURIComponent(data))) : Buffer.from(data, 'utf8').toString('base64');
+  const writeResult = await Filesystem.writeFile({
+    path: filename,
+    data: base64,
+    directory: toDirectory(location),
+    recursive: true,
+  });
+  return writeResult.uri;
+}
+
 export async function backupToFile(filename: string, location: StorageLocation = 'documents'): Promise<string> {
   const { Filesystem } = await import('@capacitor/filesystem');
   const json = exportDbJson();

@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
 package com.paytracker.nativeapp
 
 import android.app.Activity

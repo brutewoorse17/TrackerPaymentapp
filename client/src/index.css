@@ -73,8 +73,6 @@
 }
 
 @layer base {
-  html { -webkit-overflow-scrolling: touch; }
-
   * { @apply border-border; }
 
   body {
@@ -82,6 +80,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-tap-highlight-color: transparent;
   }
 
   html, body { min-height: 100%; }

@@ -1,7 +1,6 @@
 package com.paytracker.nativeapp
 
 import android.app.Activity
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -16,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.paytracker.nativeapp.data.Repository
@@ -24,6 +24,7 @@ import com.paytracker.nativeapp.data.PaymentEntity
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,8 +44,30 @@ class MainActivity : ComponentActivity() {
         items = repo.listPaymentsWithClient()
         loading = false
       }
-
       LaunchedEffect(Unit) { scope.launch { refresh() } }
+
+      val ctx = LocalContext.current
+      val createDoc = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) {
+          scope.launch {
+            val json = repo.exportJson()
+            ctx.contentResolver.openOutputStream(uri)?.use { out ->
+              OutputStreamWriter(out).use { it.write(json) }
+            }
+          }
+        }
+      }
+      val openDoc = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+          scope.launch {
+            val json = ctx.contentResolver.openInputStream(uri)?.use { input ->
+              BufferedReader(InputStreamReader(input)).readText()
+            } ?: return@launch
+            repo.importJson(json)
+            refresh()
+          }
+        }
+      }
 
       MaterialTheme {
         Surface(Modifier.fillMaxSize()) {
@@ -57,21 +80,8 @@ class MainActivity : ComponentActivity() {
             onStatusChange = { status = it },
             onAdd = { showDialog = true; editTarget = null },
             onEdit = { target -> showDialog = true; editTarget = target },
-            onBackup = {
-              scope.launch {
-                val json = repo.exportJson()
-                val createLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) {}
-              }
-            },
-            onRestore = { uri ->
-              scope.launch {
-                val json = contentResolver.openInputStream(uri)?.use { input ->
-                  BufferedReader(InputStreamReader(input)).readText()
-                } ?: return@launch
-                repo.importJson(json)
-                refresh()
-              }
-            }
+            onBackup = { createDoc.launch("paytracker-backup.json") },
+            onRestore = { openDoc.launch(arrayOf("application/json")) }
           )
           if (showDialog) {
             PaymentDialog(
@@ -110,7 +120,9 @@ fun StatusBadge(status: String) {
     "overdue" -> Color(0xFFdc2626)
     else -> Color(0xFFf59e0b)
   }
-  AssistChip(onClick = {}, label = { Text(status.replaceFirstChar { it.uppercase() }) }, colors = AssistChipDefaults.assistChipColors(labelColor = color))
+  FilledTonalButton(onClick = {}, colors = ButtonDefaults.filledTonalButtonColors(contentColor = color)) {
+    Text(status.replaceFirstChar { it.uppercase() })
+  }
 }
 
 @Composable
@@ -124,27 +136,24 @@ fun PaymentsScreen(
   onAdd: () -> Unit,
   onEdit: (PaymentWithClient) -> Unit,
   onBackup: () -> Unit,
-  onRestore: (Uri) -> Unit,
+  onRestore: () -> Unit,
 ) {
-  val activity = LocalContext.current as Activity
-  val createDoc = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-    if (uri != null) {
-      // Write will be handled by onBackup using activity.contentResolver if needed later
-    }
-  }
-  val openDoc = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-    uri?.let(onRestore)
-  }
-
   Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
     Text("PayTracker Native", style = MaterialTheme.typography.headlineSmall)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
       OutlinedTextField(value = query, onValueChange = onQueryChange, modifier = Modifier.weight(1f), label = { Text("Search") })
-      ExposedDropdownMenuBox(expanded = false, onExpandedChange = {}) {
-        OutlinedTextField(value = status, onValueChange = {}, readOnly = true, label = { Text("Status") })
+      var expanded by remember { mutableStateOf(false) }
+      Box {
+        OutlinedButton(onClick = { expanded = true }) { Text(status) }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+          listOf("all", "pending", "paid", "overdue").forEach { s ->
+            DropdownMenuItem(text = { Text(s) }, onClick = { onStatusChange(s); expanded = false })
+          }
+        }
       }
       ElevatedButton(onClick = onAdd) { Text("Add") }
-      OutlinedButton(onClick = { openDoc.launch(arrayOf("application/json")) }) { Text("Restore") }
+      OutlinedButton(onClick = onBackup) { Text("Backup") }
+      OutlinedButton(onClick = onRestore) { Text("Restore") }
     }
     ElevatedCard(Modifier.fillMaxSize()) {
       if (loading) {
@@ -196,7 +205,15 @@ fun PaymentDialog(
         OutlinedTextField(value = invoice, onValueChange = { invoice = it }, label = { Text("Invoice") })
         OutlinedTextField(value = amount, onValueChange = { amount = it }, label = { Text("Amount") })
         OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Description") })
-        OutlinedTextField(value = status, onValueChange = { status = it }, label = { Text("Status") })
+        var expanded by remember { mutableStateOf(false) }
+        Box {
+          OutlinedButton(onClick = { expanded = true }) { Text(status) }
+          DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            listOf("pending", "paid", "overdue").forEach { s ->
+              DropdownMenuItem(text = { Text(s) }, onClick = { status = s; expanded = false })
+            }
+          }
+        }
       }
     },
     confirmButton = {

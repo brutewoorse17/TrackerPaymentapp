@@ -11,6 +11,9 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -73,42 +76,72 @@ class MainActivity : ComponentActivity() {
       }
 
       MaterialTheme {
-        Surface(Modifier.fillMaxSize()) {
-          PaymentsScreen(
-            items = items,
-            loading = loading,
-            query = query,
-            onQueryChange = { query = it },
-            status = status,
-            onStatusChange = { status = it },
-            onAdd = { showDialog = true; editTarget = null },
-            onEdit = { target -> showDialog = true; editTarget = target },
-            onBackup = { createDoc.launch("paytracker-backup.json") },
-            onRestore = { openDoc.launch(arrayOf("application/json")) }
-          )
-          if (showDialog) {
-            PaymentDialog(
-              initial = editTarget,
-              onDismiss = { showDialog = false },
-              onSave = { inv, amt, due, desc, stat ->
-                scope.launch {
-                  val base = editTarget?.payment
-                  val p = PaymentEntity(
-                    id = base?.id ?: java.util.UUID.randomUUID().toString(),
-                    clientId = base?.clientId ?: items.firstOrNull()?.payment?.clientId ?: return@launch,
-                    invoiceNumber = inv,
-                    amount = amt,
-                    dueDate = due,
-                    paidDate = if (stat == "paid") System.currentTimeMillis() else null,
-                    status = stat,
-                    description = desc
-                  )
-                  repo.upsertPayment(p)
-                  showDialog = false
-                  refresh()
-                }
+        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+        val scopeDrawer = rememberCoroutineScope()
+        ModalNavigationDrawer(
+          drawerState = drawerState,
+          drawerContent = {
+            ModalDrawerSheet {
+              Text("PayTracker", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
+              NavigationDrawerItem(label = { Text("Payments") }, selected = true, onClick = { scopeDrawer.launch { drawerState.close() } })
+              NavigationDrawerItem(label = { Text("Backup") }, selected = false, onClick = { createDoc.launch("paytracker-backup.json"); scopeDrawer.launch { drawerState.close() } })
+              NavigationDrawerItem(label = { Text("Restore") }, selected = false, onClick = { openDoc.launch(arrayOf("application/json")); scopeDrawer.launch { drawerState.close() } })
+            }
+          }
+        ) {
+          Scaffold(
+            topBar = {
+              TopAppBar(
+                navigationIcon = {
+                  IconButton(onClick = { scopeDrawer.launch { drawerState.open() } }) { Icon(Icons.Default.Menu, contentDescription = "Menu") }
+                },
+                title = { Text("Payments") }
+              )
+            },
+            floatingActionButton = {
+              FloatingActionButton(onClick = { showDialog = true; editTarget = null }) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
               }
-            )
+            }
+          ) { padding ->
+            Surface(Modifier.fillMaxSize().padding(padding)) {
+              PaymentsScreen(
+                items = items,
+                loading = loading,
+                query = query,
+                onQueryChange = { query = it },
+                status = status,
+                onStatusChange = { status = it },
+                onAdd = { showDialog = true; editTarget = null },
+                onEdit = { target -> showDialog = true; editTarget = target },
+                onBackup = { createDoc.launch("paytracker-backup.json") },
+                onRestore = { openDoc.launch(arrayOf("application/json")) }
+              )
+              if (showDialog) {
+                PaymentDialog(
+                  initial = editTarget,
+                  onDismiss = { showDialog = false },
+                  onSave = { inv, amt, due, desc, stat ->
+                    scope.launch {
+                      val base = editTarget?.payment
+                      val p = PaymentEntity(
+                        id = base?.id ?: java.util.UUID.randomUUID().toString(),
+                        clientId = base?.clientId ?: items.firstOrNull()?.payment?.clientId ?: return@launch,
+                        invoiceNumber = inv,
+                        amount = amt,
+                        dueDate = due,
+                        paidDate = if (stat == "paid") System.currentTimeMillis() else null,
+                        status = stat,
+                        description = desc
+                      )
+                      repo.upsertPayment(p)
+                      showDialog = false
+                      refresh()
+                    }
+                  }
+                )
+              }
+            }
           }
         }
       }

@@ -1,14 +1,14 @@
 [
     {
-        "merged": "com.paytracker.nativeapp-debug-54:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "com.paytracker.nativeapp-main-56:/mipmap-anydpi-v26/ic_launcher_round.xml"
+        "merged": "com.paytracker.nativeapp-debug-55:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.paytracker.nativeapp-main-57:/mipmap-anydpi-v26/ic_launcher_round.xml"
     },
     {
-        "merged": "com.paytracker.nativeapp-debug-54:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "com.paytracker.nativeapp-main-56:/drawable/ic_launcher_foreground.xml"
+        "merged": "com.paytracker.nativeapp-debug-55:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.paytracker.nativeapp-main-57:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
-        "merged": "com.paytracker.nativeapp-debug-54:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "com.paytracker.nativeapp-main-56:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "com.paytracker.nativeapp-debug-55:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.paytracker.nativeapp-main-57:/drawable/ic_launcher_foreground.xml"
     }
 ]

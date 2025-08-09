@@ -50,6 +50,9 @@ MERGED from [androidx.room:room-runtime:2.6.1] /home/ubuntu/.gradle/caches/8.11.
 MERGED from [androidx.room:room-ktx:2.6.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/b73631e40f8de49cad7238453b11afeb/transformed/jetified-room-ktx-2.6.1/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.sqlite:sqlite-framework:2.4.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/e8e201d28106562cb26108f59b71a511/transformed/sqlite-framework-2.4.0/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.sqlite:sqlite:2.4.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/9fcaa3bc23e6f656d6889e1634763a98/transformed/sqlite-2.4.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.datastore:datastore-core-android:1.1.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/70b88cc8feaa007d68b1dc0b7a3e1e76/transformed/jetified-datastore-core-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.datastore:datastore-android:1.1.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/4a4fba91acf17369786554476d32e1ac/transformed/jetified-datastore-release/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.datastore:datastore-preferences-android:1.1.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/be3671a9f8880f0a8cc32a4e460c8342/transformed/jetified-datastore-preferences-release/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/a34d4bab7c5c101f770f9f2295ed8d7f/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.compose.runtime:runtime-saveable-android:1.6.8] /home/ubuntu/.gradle/caches/8.11.1/transforms/2ebecabc5f1f452a2dd310aa6c1a071d/transformed/jetified-runtime-saveable-release/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.compose.runtime:runtime-android:1.6.8] /home/ubuntu/.gradle/caches/8.11.1/transforms/1b27ceef0c38432d9ef60473cbf886f2/transformed/jetified-runtime-release/AndroidManifest.xml:2:1-7:12
@@ -214,6 +217,12 @@ MERGED from [androidx.sqlite:sqlite-framework:2.4.0] /home/ubuntu/.gradle/caches
 MERGED from [androidx.sqlite:sqlite-framework:2.4.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/e8e201d28106562cb26108f59b71a511/transformed/sqlite-framework-2.4.0/AndroidManifest.xml:20:5-44
 MERGED from [androidx.sqlite:sqlite:2.4.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/9fcaa3bc23e6f656d6889e1634763a98/transformed/sqlite-2.4.0/AndroidManifest.xml:20:5-44
 MERGED from [androidx.sqlite:sqlite:2.4.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/9fcaa3bc23e6f656d6889e1634763a98/transformed/sqlite-2.4.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-core-android:1.1.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/70b88cc8feaa007d68b1dc0b7a3e1e76/transformed/jetified-datastore-core-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.datastore:datastore-core-android:1.1.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/70b88cc8feaa007d68b1dc0b7a3e1e76/transformed/jetified-datastore-core-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.datastore:datastore-android:1.1.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/4a4fba91acf17369786554476d32e1ac/transformed/jetified-datastore-release/AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-android:1.1.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/4a4fba91acf17369786554476d32e1ac/transformed/jetified-datastore-release/AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-preferences-android:1.1.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/be3671a9f8880f0a8cc32a4e460c8342/transformed/jetified-datastore-preferences-release/AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-preferences-android:1.1.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/be3671a9f8880f0a8cc32a4e460c8342/transformed/jetified-datastore-preferences-release/AndroidManifest.xml:20:5-44
 MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/a34d4bab7c5c101f770f9f2295ed8d7f/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
 MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/a34d4bab7c5c101f770f9f2295ed8d7f/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
 MERGED from [androidx.compose.runtime:runtime-saveable-android:1.6.8] /home/ubuntu/.gradle/caches/8.11.1/transforms/2ebecabc5f1f452a2dd310aa6c1a071d/transformed/jetified-runtime-saveable-release/AndroidManifest.xml:5:5-44

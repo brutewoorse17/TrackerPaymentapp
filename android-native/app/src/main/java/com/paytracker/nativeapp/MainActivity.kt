@@ -50,7 +50,11 @@ class MainActivity : ComponentActivity() {
       var status by remember { mutableStateOf("all") }
       var showDialog by remember { mutableStateOf(false) }
       var editTarget by remember { mutableStateOf<PaymentWithClient?>(null) }
+      val settingsStore = remember { com.paytracker.nativeapp.data.SettingsStore(this) }
       var darkMode by rememberSaveable { mutableStateOf(false) }
+      LaunchedEffect(Unit) {
+        settingsStore.isDarkMode.collect { darkMode = it }
+      }
 
       val refresh: suspend () -> Unit = {
         repo.ensureSeed()
@@ -146,7 +150,7 @@ class MainActivity : ComponentActivity() {
                 composable("settings") {
                   SettingsScreen(
                     isDark = darkMode,
-                    onToggleDark = { darkMode = it },
+                    onToggleDark = { v -> darkMode = v; scope.launch { settingsStore.setDarkMode(v) } },
                     onBackup = { createDoc.launch("paytracker-backup.json") },
                     onRestore = { openDoc.launch(arrayOf("application/json")) }
                   )
@@ -322,6 +326,14 @@ fun SettingsScreen(
           OutlinedButton(onClick = onBackup) { Text("Backup to JSON") }
           OutlinedButton(onClick = onRestore) { Text("Restore from JSON") }
         }
+      }
+    }
+    ElevatedCard(Modifier.fillMaxWidth()) {
+      Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("About", style = MaterialTheme.typography.titleMedium)
+        val version = try { BuildConfig.VERSION_NAME } catch (e: Exception) { "1.0" }
+        Text("PayTracker Native v$version")
+        Text("A lightweight offline-first payment tracker.")
       }
     }
   }

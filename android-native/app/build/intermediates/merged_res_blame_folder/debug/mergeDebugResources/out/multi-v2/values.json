@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.paytracker.nativeapp-mergeDebugResources-53:/values/values.xml",
+            "outputFile": "com.paytracker.nativeapp-mergeDebugResources-56:/values/values.xml",
             "map": [
                 {
                     "source": "/workspace/android-native/app/src/main/res/values/colors.xml",

@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.paytracker.nativeapp-mergeDebugResources-53:/values-zh-rHK/values-zh-rHK.xml",
+            "outputFile": "com.paytracker.nativeapp-mergeDebugResources-56:/values-zh-rHK/values-zh-rHK.xml",
             "map": [
                 {
                     "source": "/home/ubuntu/.gradle/caches/8.11.1/transforms/48746ce5bdae1e7379282fddf8937b2e/transformed/jetified-material3-release/res/values-zh-rHK/values-zh-rHK.xml",

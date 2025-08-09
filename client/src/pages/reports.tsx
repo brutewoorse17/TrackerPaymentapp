@@ -1,35 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { Download, FileText, TrendingUp, Users, DollarSign } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { FileText, TrendingUp, Users, DollarSign } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { downloadCSV } from "@/lib/utils";
 import type { DashboardStats } from "@shared/schema";
+import { ExportDialog } from "@/components/ui/export-dialog";
 
 export default function Reports() {
   const { data: stats, isLoading } = useQuery<DashboardStats>({
     queryKey: ["/api/dashboard/stats"],
   });
-
-  const handleExportClients = async () => {
-    try {
-      const response = await fetch("/api/export/clients");
-      const csvData = await response.text();
-      downloadCSV(csvData, "clients-report.csv");
-    } catch (error) {
-      console.error("Failed to export clients report:", error);
-    }
-  };
-
-  const handleExportPayments = async () => {
-    try {
-      const response = await fetch("/api/export/payments");
-      const csvData = await response.text();
-      downloadCSV(csvData, "payments-report.csv");
-    } catch (error) {
-      console.error("Failed to export payments report:", error);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -61,6 +40,7 @@ export default function Reports() {
               <h1 className="text-xl sm:text-2xl font-bold text-slate-900" data-testid="page-title">Reports</h1>
               <p className="mt-1 text-sm text-slate-600 hidden sm:block">Generate and export business reports</p>
             </div>
+            <ExportDialog />
           </div>
         </div>
       </div>
@@ -101,42 +81,6 @@ export default function Reports() {
             </CardContent>
           </Card>
         </div>
-      </div>
-
-      {/* Export options */}
-      <div className="px-3 sm:px-4 lg:px-8 mt-6 pb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <FileText className="h-5 w-5 mr-2" />
-              Export Reports
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                onClick={handleExportClients}
-                className="flex-1 touch-manipulation"
-                data-testid="button-export-clients"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Export Clients Report
-              </Button>
-              <Button
-                onClick={handleExportPayments}
-                variant="outline"
-                className="flex-1 touch-manipulation"
-                data-testid="button-export-payments"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Export Payments Report
-              </Button>
-            </div>
-            <p className="text-sm text-slate-600">
-              Export your data as CSV files for analysis in spreadsheet applications.
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

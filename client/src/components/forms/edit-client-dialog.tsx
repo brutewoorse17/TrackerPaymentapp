@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -40,12 +40,25 @@ export function EditClientDialog({ client, trigger, onClientUpdated }: EditClien
     resolver: zodResolver(insertClientSchema),
     defaultValues: {
       name: client.name,
-      company: client.company || "",
+      company: (client.company as any) || "",
       email: client.email,
-      phone: client.phone || "",
-      address: client.address || "",
+      phone: (client.phone as any) || "",
+      address: (client.address as any) || "",
     },
   });
+
+  // Ensure form values match the selected client whenever dialog opens or client changes
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: client.name,
+        company: (client.company as any) || "",
+        email: client.email,
+        phone: (client.phone as any) || "",
+        address: (client.address as any) || "",
+      });
+    }
+  }, [open, client, form]);
 
   const mutation = useMutation({
     mutationFn: async (data: InsertClient) => {
@@ -61,7 +74,6 @@ export function EditClientDialog({ client, trigger, onClientUpdated }: EditClien
         description: "Client updated successfully",
       });
       setOpen(false);
-      form.reset();
       onClientUpdated?.();
     },
     onError: (error: any) => {

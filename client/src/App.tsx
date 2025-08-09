@@ -13,9 +13,9 @@ import Sidebar from "@/components/layout/sidebar";
 
 function Router() {
   return (
-    <div className="h-screen bg-slate-50 overflow-hidden safe-area-padding">
+    <div className="min-h-screen bg-slate-50 safe-area-padding overflow-x-hidden">
       <Sidebar />
-      <div className="flex flex-col h-full lg:pl-64">
+      <div className="flex flex-col min-h-screen lg:pl-64">
         <main className="flex-1 overflow-auto touch-manipulation">
           <Switch>
             <Route path="/" component={Dashboard} />

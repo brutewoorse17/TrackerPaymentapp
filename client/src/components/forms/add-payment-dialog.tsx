@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { insertPaymentSchema, type InsertPayment } from "@shared/schema";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { insertPaymentSchema, type InsertPayment, type ClientWithStats } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -33,7 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
 interface AddPaymentDialogProps {
-  clientId: string;
+  clientId?: string;
   trigger?: React.ReactNode;
 }
 
@@ -45,7 +45,7 @@ export function AddPaymentDialog({ clientId, trigger }: AddPaymentDialogProps) {
   const form = useForm<InsertPayment>({
     resolver: zodResolver(insertPaymentSchema),
     defaultValues: {
-      clientId,
+      clientId: clientId ?? "",
       invoiceNumber: "",
       amount: "",
       dueDate: "",
@@ -56,6 +56,12 @@ export function AddPaymentDialog({ clientId, trigger }: AddPaymentDialogProps) {
   });
 
   const status = form.watch("status");
+
+  // Fetch clients when no clientId provided, to allow selection
+  const { data: clients } = useQuery<ClientWithStats[]>({
+    queryKey: ["/api/clients"],
+    enabled: !clientId,
+  });
 
   // Show/hide paid date field based on status
   useEffect(() => {
@@ -77,8 +83,10 @@ export function AddPaymentDialog({ clientId, trigger }: AddPaymentDialogProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/clients", clientId] });
-      queryClient.invalidateQueries({ queryKey: ["/api/clients", clientId, "payments"] });
+      if (form.getValues("clientId")) {
+        queryClient.invalidateQueries({ queryKey: ["/api/clients", form.getValues("clientId")] });
+        queryClient.invalidateQueries({ queryKey: ["/api/clients", form.getValues("clientId"), "payments"] });
+      }
       queryClient.invalidateQueries({ queryKey: ["/api/payments"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/recent-payments"] });
@@ -88,7 +96,15 @@ export function AddPaymentDialog({ clientId, trigger }: AddPaymentDialogProps) {
         description: "Payment added successfully",
       });
       setOpen(false);
-      form.reset();
+      form.reset({
+        clientId: clientId ?? "",
+        invoiceNumber: "",
+        amount: "",
+        dueDate: "",
+        paidDate: "",
+        status: "pending",
+        description: "",
+      });
     },
     onError: (error: any) => {
       toast({
@@ -100,6 +116,10 @@ export function AddPaymentDialog({ clientId, trigger }: AddPaymentDialogProps) {
   });
 
   const onSubmit = (data: InsertPayment) => {
+    if (!data.clientId) {
+      toast({ title: "Missing client", description: "Please select a client.", variant: "destructive" });
+      return;
+    }
     mutation.mutate(data);
   };
 
@@ -119,6 +139,31 @@ export function AddPaymentDialog({ clientId, trigger }: AddPaymentDialogProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {!clientId && (
+              <FormField
+                control={form.control}
+                name="clientId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Client *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-client">
+                          <SelectValue placeholder="Select client" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {clients?.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -199,7 +244,7 @@ export function AddPaymentDialog({ clientId, trigger }: AddPaymentDialogProps) {
                 )}
               />
             </div>
-            
+
             {status === "paid" && (
               <FormField
                 control={form.control}
@@ -208,19 +253,14 @@ export function AddPaymentDialog({ clientId, trigger }: AddPaymentDialogProps) {
                   <FormItem>
                     <FormLabel>Paid Date</FormLabel>
                     <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                        value={field.value || ""}
-                        data-testid="input-paid-date"
-                      />
+                      <Input type="date" {...field} data-testid="input-paid-date" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             )}
-            
+
             <FormField
               control={form.control}
               name="description"
@@ -229,10 +269,8 @@ export function AddPaymentDialog({ clientId, trigger }: AddPaymentDialogProps) {
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Payment description or notes..."
-                      rows={3}
+                      placeholder="Add an optional description"
                       {...field}
-                      value={field.value || ""}
                       data-testid="input-description"
                     />
                   </FormControl>
@@ -240,22 +278,13 @@ export function AddPaymentDialog({ clientId, trigger }: AddPaymentDialogProps) {
                 </FormItem>
               )}
             />
-            
-            <div className="flex justify-end space-x-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
-                data-testid="button-cancel"
-              >
+
+            <div className="flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={mutation.isPending}
-                data-testid="button-submit"
-              >
-                {mutation.isPending ? "Adding..." : "Add Payment"}
+              <Button type="submit" data-testid="button-submit-add-payment" className="touch-manipulation">
+                Save Payment
               </Button>
             </div>
           </form>

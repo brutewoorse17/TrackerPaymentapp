@@ -17,12 +17,17 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.paytracker.nativeapp.data.Repository
 import com.paytracker.nativeapp.data.PaymentWithClient
 import com.paytracker.nativeapp.data.PaymentEntity
@@ -45,6 +50,7 @@ class MainActivity : ComponentActivity() {
       var status by remember { mutableStateOf("all") }
       var showDialog by remember { mutableStateOf(false) }
       var editTarget by remember { mutableStateOf<PaymentWithClient?>(null) }
+      var darkMode by rememberSaveable { mutableStateOf(false) }
 
       val refresh: suspend () -> Unit = {
         repo.ensureSeed()
@@ -76,17 +82,33 @@ class MainActivity : ComponentActivity() {
         }
       }
 
-      com.paytracker.nativeapp.ui.theme.PayTrackerTheme {
+      com.paytracker.nativeapp.ui.theme.PayTrackerTheme(useDarkTheme = darkMode) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scopeDrawer = rememberCoroutineScope()
+        val navController = rememberNavController()
+        val backStack by navController.currentBackStackEntryAsState()
+        val currentRoute = backStack?.destination?.route ?: "payments"
         ModalNavigationDrawer(
           drawerState = drawerState,
           drawerContent = {
             ModalDrawerSheet {
               Text("PayTracker", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
-              NavigationDrawerItem(label = { Text("Payments") }, selected = true, onClick = { scopeDrawer.launch { drawerState.close() } })
-              NavigationDrawerItem(label = { Text("Backup") }, selected = false, onClick = { createDoc.launch("paytracker-backup.json"); scopeDrawer.launch { drawerState.close() } })
-              NavigationDrawerItem(label = { Text("Restore") }, selected = false, onClick = { openDoc.launch(arrayOf("application/json")); scopeDrawer.launch { drawerState.close() } })
+              NavigationDrawerItem(
+                label = { Text("Payments") },
+                selected = currentRoute == "payments",
+                onClick = {
+                  scopeDrawer.launch { drawerState.close() }
+                  if (currentRoute != "payments") navController.navigate("payments") { popUpTo(0) }
+                }
+              )
+              NavigationDrawerItem(
+                label = { Text("Settings") },
+                selected = currentRoute == "settings",
+                onClick = {
+                  scopeDrawer.launch { drawerState.close() }
+                  if (currentRoute != "settings") navController.navigate("settings") { popUpTo(0) }
+                }
+              )
             }
           }
         ) {
@@ -96,28 +118,41 @@ class MainActivity : ComponentActivity() {
                 navigationIcon = {
                   IconButton(onClick = { scopeDrawer.launch { drawerState.open() } }) { Icon(Icons.Default.Menu, contentDescription = "Menu") }
                 },
-                title = { Text("Payments") }
+                title = { Text(if (currentRoute == "settings") "Settings" else "Payments") }
               )
             },
             floatingActionButton = {
-              FloatingActionButton(onClick = { showDialog = true; editTarget = null }) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+              if (currentRoute == "payments") {
+                FloatingActionButton(onClick = { showDialog = true; editTarget = null }) { Icon(Icons.Default.Add, contentDescription = "Add") }
               }
             }
           ) { padding ->
             Surface(Modifier.fillMaxSize().padding(padding)) {
-              PaymentsScreen(
-                items = items,
-                loading = loading,
-                query = query,
-                onQueryChange = { query = it },
-                status = status,
-                onStatusChange = { status = it },
-                onAdd = { showDialog = true; editTarget = null },
-                onEdit = { target -> showDialog = true; editTarget = target },
-                onBackup = { createDoc.launch("paytracker-backup.json") },
-                onRestore = { openDoc.launch(arrayOf("application/json")) }
-              )
+              NavHost(navController = navController, startDestination = "payments") {
+                composable("payments") {
+                  PaymentsScreen(
+                    items = items,
+                    loading = loading,
+                    query = query,
+                    onQueryChange = { query = it },
+                    status = status,
+                    onStatusChange = { status = it },
+                    onAdd = { showDialog = true; editTarget = null },
+                    onEdit = { target -> showDialog = true; editTarget = target },
+                    onBackup = { createDoc.launch("paytracker-backup.json") },
+                    onRestore = { openDoc.launch(arrayOf("application/json")) }
+                  )
+                }
+                composable("settings") {
+                  SettingsScreen(
+                    isDark = darkMode,
+                    onToggleDark = { darkMode = it },
+                    onBackup = { createDoc.launch("paytracker-backup.json") },
+                    onRestore = { openDoc.launch(arrayOf("application/json")) }
+                  )
+                }
+              }
+
               if (showDialog) {
                 PaymentDialog(
                   initial = editTarget,
@@ -261,4 +296,33 @@ fun PaymentDialog(
     },
     dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
   )
+}
+
+@Composable
+fun SettingsScreen(
+  isDark: Boolean,
+  onToggleDark: (Boolean) -> Unit,
+  onBackup: () -> Unit,
+  onRestore: () -> Unit,
+) {
+  Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Text("Settings", style = MaterialTheme.typography.titleLarge)
+    ElevatedCard(Modifier.fillMaxWidth()) {
+      Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+          Text("Dark Mode")
+          Switch(checked = isDark, onCheckedChange = onToggleDark)
+        }
+      }
+    }
+    ElevatedCard(Modifier.fillMaxWidth()) {
+      Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("Backup & Restore", style = MaterialTheme.typography.titleMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+          OutlinedButton(onClick = onBackup) { Text("Backup to JSON") }
+          OutlinedButton(onClick = onRestore) { Text("Restore from JSON") }
+        }
+      }
+    }
+  }
 }

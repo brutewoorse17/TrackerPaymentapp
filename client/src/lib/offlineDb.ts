@@ -300,3 +300,17 @@ export function exportPaymentsCsv(): string {
   ).join("\n");
   return csv;
 }
+
+export function exportDbJson(): string {
+  const db = loadDb();
+  return JSON.stringify(db, null, 2);
+}
+
+export function importDbJson(json: string): void {
+  const parsed = JSON.parse(json) as OfflineDb;
+  // Basic shape validation
+  if (!parsed || !Array.isArray((parsed as any).clients) || !Array.isArray((parsed as any).payments)) {
+    throw new Error("Invalid backup format");
+  }
+  saveDb(parsed);
+}

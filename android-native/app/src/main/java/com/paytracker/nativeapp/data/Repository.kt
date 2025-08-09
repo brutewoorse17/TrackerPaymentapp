@@ -4,6 +4,7 @@ import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
+import com.google.gson.Gson
 
 class Repository(private val db: AppDatabase) {
   suspend fun ensureSeed() = withContext(Dispatchers.IO) {
@@ -36,6 +37,24 @@ class Repository(private val db: AppDatabase) {
 
   suspend fun listPaymentsWithClient(): List<PaymentWithClient> = withContext(Dispatchers.IO) {
     db.paymentDao().listWithClient()
+  }
+
+  suspend fun upsertPayment(p: PaymentEntity) = withContext(Dispatchers.IO) {
+    db.paymentDao().upsert(p)
+  }
+
+  data class Backup(val clients: List<ClientEntity>, val payments: List<PaymentEntity>)
+
+  suspend fun exportJson(): String = withContext(Dispatchers.IO) {
+    val clients = db.clientDao().list()
+    val payments = db.paymentDao().list()
+    Gson().toJson(Backup(clients, payments))
+  }
+
+  suspend fun importJson(json: String) = withContext(Dispatchers.IO) {
+    val bk = Gson().fromJson(json, Backup::class.java)
+    bk.clients.forEach { db.clientDao().upsert(it) }
+    bk.payments.forEach { db.paymentDao().upsert(it) }
   }
 
   companion object {

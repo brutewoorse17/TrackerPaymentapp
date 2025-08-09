@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.paytracker.nativeapp-mergeDebugResources-45:/values/values.xml",
+            "outputFile": "com.paytracker.nativeapp-mergeDebugResources-46:/values/values.xml",
             "map": [
                 {
                     "source": "/home/ubuntu/.gradle/caches/8.11.1/transforms/496d18b2be32674e46fc0068a132b98c/transformed/jetified-lifecycle-viewmodel-release/res/values/values.xml",

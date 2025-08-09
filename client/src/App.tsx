@@ -10,6 +10,7 @@ import Payments from "@/pages/payments";
 import Reports from "@/pages/reports";
 import NotFound from "@/pages/not-found";
 import Sidebar from "@/components/layout/sidebar";
+import About from "@/pages/about";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function Router() {
             <Route path="/clients/:id" component={ClientDetail} />
             <Route path="/payments" component={Payments} />
             <Route path="/reports" component={Reports} />
+            <Route path="/about" component={About} />
             <Route component={NotFound} />
           </Switch>
         </main>

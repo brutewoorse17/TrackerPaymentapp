@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
         }
       }
 
-      MaterialTheme {
+      com.paytracker.nativeapp.ui.theme.PayTrackerTheme {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scopeDrawer = rememberCoroutineScope()
         ModalNavigationDrawer(
@@ -200,20 +200,21 @@ fun PaymentsScreen(
           (query.text.isBlank() || row.clientName.contains(query.text, ignoreCase = true) || (row.payment.description?.contains(query.text, true) ?: false)) &&
           (status == "all" || row.payment.status == status)
         }
-        LazyColumn(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
           items(filtered) { row ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-              Column(Modifier.weight(1f)) {
-                Text(row.clientName, style = MaterialTheme.typography.bodyLarge)
-                Text(row.payment.description ?: row.payment.invoiceNumber, style = MaterialTheme.typography.bodySmall)
-              }
-              Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                StatusBadge(row.payment.status)
-                Text("₱" + String.format("%.2f", row.payment.amount), style = MaterialTheme.typography.bodyMedium)
-                TextButton(onClick = { onEdit(row) }) { Text("Edit") }
+            ElevatedCard(Modifier.fillMaxWidth()) {
+              Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                  Text(row.clientName, style = MaterialTheme.typography.titleMedium)
+                  Text(row.payment.description ?: row.payment.invoiceNumber, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                  StatusBadge(row.payment.status)
+                  Text("₱" + String.format("%.2f", row.payment.amount), style = MaterialTheme.typography.bodyMedium)
+                  TextButton(onClick = { onEdit(row) }) { Text("Edit") }
+                }
               }
             }
-            Divider(Modifier.padding(vertical = 8.dp))
           }
         }
       }

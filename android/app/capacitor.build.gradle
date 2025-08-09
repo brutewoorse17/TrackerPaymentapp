@@ -7,10 +7,16 @@ android {
   }
 }
 
-apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
+if (new File("../capacitor-cordova-android-plugins/cordova.variables.gradle").exists()) {
+  apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
+}
 dependencies {
-    implementation project(':capacitor-filesystem')
-    implementation project(':capacitor-share')
+    if (project.rootProject.findProject(':capacitor-filesystem') != null) {
+        implementation project(':capacitor-filesystem')
+    }
+    if (project.rootProject.findProject(':capacitor-share') != null) {
+        implementation project(':capacitor-share')
+    }
 
 }
 

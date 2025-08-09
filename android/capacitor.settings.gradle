@@ -2,8 +2,14 @@
 include ':capacitor-android'
 project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
 
-include ':capacitor-filesystem'
-project(':capacitor-filesystem').projectDir = new File('../node_modules/@capacitor/filesystem/android')
+def fsProjDir = new File('../node_modules/@capacitor/filesystem/android')
+if (fsProjDir.exists()) {
+  include ':capacitor-filesystem'
+  project(':capacitor-filesystem').projectDir = fsProjDir
+}
 
-include ':capacitor-share'
-project(':capacitor-share').projectDir = new File('../node_modules/@capacitor/share/android')
+def shareProjDir = new File('../node_modules/@capacitor/share/android')
+if (shareProjDir.exists()) {
+  include ':capacitor-share'
+  project(':capacitor-share').projectDir = shareProjDir
+}

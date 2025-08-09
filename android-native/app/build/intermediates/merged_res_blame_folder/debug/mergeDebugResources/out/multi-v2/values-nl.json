@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.paytracker.nativeapp-mergeDebugResources-46:/values-nl/values-nl.xml",
+            "outputFile": "com.paytracker.nativeapp-mergeDebugResources-52:/values-nl/values-nl.xml",
             "map": [
                 {
                     "source": "/home/ubuntu/.gradle/caches/8.11.1/transforms/6d01b3e4ac9c1faa6a4464cfaef6c5cc/transformed/core-1.13.1/res/values-nl/values-nl.xml",

@@ -28,6 +28,8 @@ import java.io.OutputStreamWriter
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
+    // Splash screen
+    androidx.core.splashscreen.SplashScreen.installSplashScreen(this)
     super.onCreate(savedInstanceState)
     setContent {
       val repo = remember { Repository.create(this) }

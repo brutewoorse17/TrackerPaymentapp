@@ -1,9 +1,14 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:2:1-15:12
-INJECTED from /workspace/android-native/app/src/main/AndroidManifest.xml:2:1-15:12
-INJECTED from /workspace/android-native/app/src/main/AndroidManifest.xml:2:1-15:12
-INJECTED from /workspace/android-native/app/src/main/AndroidManifest.xml:2:1-15:12
+ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:2:1-17:12
+INJECTED from /workspace/android-native/app/src/main/AndroidManifest.xml:2:1-17:12
+INJECTED from /workspace/android-native/app/src/main/AndroidManifest.xml:2:1-17:12
+INJECTED from /workspace/android-native/app/src/main/AndroidManifest.xml:2:1-17:12
+MERGED from [androidx.navigation:navigation-common:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/7dcbd50234f230cfe02a405d25abab0b/transformed/navigation-common-2.7.7/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.navigation:navigation-runtime:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/40c3dfb29ab4bdcfff8dbf01074838b6/transformed/navigation-runtime-2.7.7/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.navigation:navigation-common-ktx:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/1fa6e2c2912dfbf77e20c9821fe5bffb/transformed/navigation-common-ktx-2.7.7/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/51a732731826ad447fc4ab89eaeba0ea/transformed/navigation-runtime-ktx-2.7.7/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigation:navigation-compose:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/31a5af67a8c2e9ce4a4c3c749045fbfc/transformed/jetified-navigation-compose-2.7.7/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.activity:activity:1.9.2] /home/ubuntu/.gradle/caches/8.11.1/transforms/0128235018009b58f23fc43904ac1848/transformed/jetified-activity-1.9.2/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.activity:activity-ktx:1.9.2] /home/ubuntu/.gradle/caches/8.11.1/transforms/0dc592e97156a3077cfac155117938c9/transformed/jetified-activity-ktx-1.9.2/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.compose.material3:material3-android:1.2.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/48746ce5bdae1e7379282fddf8937b2e/transformed/jetified-material3-release/AndroidManifest.xml:17:1-22:12
@@ -39,6 +44,7 @@ MERGED from [androidx.autofill:autofill:1.0.0] /home/ubuntu/.gradle/caches/8.11.
 MERGED from [androidx.core:core:1.13.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/6d01b3e4ac9c1faa6a4464cfaef6c5cc/transformed/core-1.13.1/AndroidManifest.xml:17:1-30:12
 MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/331b2aca129ddd3b7cd1e31c713d66ba/transformed/jetified-customview-poolingcontainer-1.0.0/AndroidManifest.xml:17:1-23:12
 MERGED from [androidx.core:core-ktx:1.13.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/6deb16354a4f719e10094f470cdda9ce/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.core:core-splashscreen:1.0.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/be05ea1f1ba4516f1fba41e777b90edb/transformed/jetified-core-splashscreen-1.0.1/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.room:room-runtime:2.6.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/8905ab6cb4730b643f520ece85951941/transformed/room-runtime-2.6.1/AndroidManifest.xml:17:1-31:12
 MERGED from [androidx.room:room-ktx:2.6.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/b73631e40f8de49cad7238453b11afeb/transformed/jetified-room-ktx-2.6.1/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.sqlite:sqlite-framework:2.4.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/e8e201d28106562cb26108f59b71a511/transformed/sqlite-framework-2.4.0/AndroidManifest.xml:17:1-22:12
@@ -61,8 +67,8 @@ MERGED from [androidx.tracing:tracing:1.0.0] /home/ubuntu/.gradle/caches/8.11.1/
 	xmlns:android
 		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:2:11-69
 application
-ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:3:3-14:17
-INJECTED from /workspace/android-native/app/src/main/AndroidManifest.xml:3:3-14:17
+ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:3:3-16:17
+INJECTED from /workspace/android-native/app/src/main/AndroidManifest.xml:3:3-16:17
 MERGED from [androidx.compose.ui:ui-tooling-android:1.6.8] /home/ubuntu/.gradle/caches/8.11.1/transforms/b8c03c6e03ec1fcb6ca523f63fc0f814/transformed/jetified-ui-tooling-release/AndroidManifest.xml:22:5-26:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.6.8] /home/ubuntu/.gradle/caches/8.11.1/transforms/b8c03c6e03ec1fcb6ca523f63fc0f814/transformed/jetified-ui-tooling-release/AndroidManifest.xml:22:5-26:19
 MERGED from [androidx.emoji2:emoji2:1.3.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/81b95c51614e2efa082777603ae33cdd/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:23:5-33:19
@@ -87,30 +93,44 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] /home/ubuntu/.gradle/caches
 		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:6:5-31
 	android:label
 		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:5:5-38
+	android:roundIcon
+		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:8:5-50
+	android:icon
+		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:7:5-39
 	android:allowBackup
 		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:4:5-31
 	android:theme
-		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:7:5-64
+		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:9:5-64
 activity#com.paytracker.nativeapp.MainActivity
-ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:8:5-13:16
+ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:10:5-15:16
 	android:exported
-		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:8:44-67
+		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:10:44-67
 	android:name
-		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:8:15-43
+		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:10:15-43
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:9:7-12:23
+ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:11:7-14:23
 action#android.intent.action.MAIN
-ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:10:9-61
+ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:12:9-61
 	android:name
-		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:10:17-58
+		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:12:17-58
 category#android.intent.category.LAUNCHER
-ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:11:9-69
+ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:13:9-69
 	android:name
-		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:11:19-66
+		ADDED from /workspace/android-native/app/src/main/AndroidManifest.xml:13:19-66
 uses-sdk
 INJECTED from /workspace/android-native/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /workspace/android-native/app/src/main/AndroidManifest.xml
 INJECTED from /workspace/android-native/app/src/main/AndroidManifest.xml
+MERGED from [androidx.navigation:navigation-common:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/7dcbd50234f230cfe02a405d25abab0b/transformed/navigation-common-2.7.7/AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-common:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/7dcbd50234f230cfe02a405d25abab0b/transformed/navigation-common-2.7.7/AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-runtime:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/40c3dfb29ab4bdcfff8dbf01074838b6/transformed/navigation-runtime-2.7.7/AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-runtime:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/40c3dfb29ab4bdcfff8dbf01074838b6/transformed/navigation-runtime-2.7.7/AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-common-ktx:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/1fa6e2c2912dfbf77e20c9821fe5bffb/transformed/navigation-common-ktx-2.7.7/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-common-ktx:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/1fa6e2c2912dfbf77e20c9821fe5bffb/transformed/navigation-common-ktx-2.7.7/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/51a732731826ad447fc4ab89eaeba0ea/transformed/navigation-runtime-ktx-2.7.7/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/51a732731826ad447fc4ab89eaeba0ea/transformed/navigation-runtime-ktx-2.7.7/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-compose:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/31a5af67a8c2e9ce4a4c3c749045fbfc/transformed/jetified-navigation-compose-2.7.7/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-compose:2.7.7] /home/ubuntu/.gradle/caches/8.11.1/transforms/31a5af67a8c2e9ce4a4c3c749045fbfc/transformed/jetified-navigation-compose-2.7.7/AndroidManifest.xml:5:5-44
 MERGED from [androidx.activity:activity:1.9.2] /home/ubuntu/.gradle/caches/8.11.1/transforms/0128235018009b58f23fc43904ac1848/transformed/jetified-activity-1.9.2/AndroidManifest.xml:20:5-44
 MERGED from [androidx.activity:activity:1.9.2] /home/ubuntu/.gradle/caches/8.11.1/transforms/0128235018009b58f23fc43904ac1848/transformed/jetified-activity-1.9.2/AndroidManifest.xml:20:5-44
 MERGED from [androidx.activity:activity-ktx:1.9.2] /home/ubuntu/.gradle/caches/8.11.1/transforms/0dc592e97156a3077cfac155117938c9/transformed/jetified-activity-ktx-1.9.2/AndroidManifest.xml:5:5-44
@@ -181,6 +201,8 @@ MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /home/ubuntu
 MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /home/ubuntu/.gradle/caches/8.11.1/transforms/331b2aca129ddd3b7cd1e31c713d66ba/transformed/jetified-customview-poolingcontainer-1.0.0/AndroidManifest.xml:20:5-21:38
 MERGED from [androidx.core:core-ktx:1.13.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/6deb16354a4f719e10094f470cdda9ce/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:5:5-44
 MERGED from [androidx.core:core-ktx:1.13.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/6deb16354a4f719e10094f470cdda9ce/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-splashscreen:1.0.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/be05ea1f1ba4516f1fba41e777b90edb/transformed/jetified-core-splashscreen-1.0.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.core:core-splashscreen:1.0.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/be05ea1f1ba4516f1fba41e777b90edb/transformed/jetified-core-splashscreen-1.0.1/AndroidManifest.xml:20:5-22:41
 MERGED from [androidx.room:room-runtime:2.6.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/8905ab6cb4730b643f520ece85951941/transformed/room-runtime-2.6.1/AndroidManifest.xml:21:5-44
 MERGED from [androidx.room:room-runtime:2.6.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/8905ab6cb4730b643f520ece85951941/transformed/room-runtime-2.6.1/AndroidManifest.xml:21:5-44
 MERGED from [androidx.room:room-ktx:2.6.1] /home/ubuntu/.gradle/caches/8.11.1/transforms/b73631e40f8de49cad7238453b11afeb/transformed/jetified-room-ktx-2.6.1/AndroidManifest.xml:20:5-44

@@ -331,8 +331,7 @@ fun SettingsScreen(
     ElevatedCard(Modifier.fillMaxWidth()) {
       Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("About", style = MaterialTheme.typography.titleMedium)
-        val version = try { BuildConfig.VERSION_NAME } catch (e: Exception) { "1.0" }
-        Text("PayTracker Native v$version")
+        Text("PayTracker Native v1.0")
         Text("A lightweight offline-first payment tracker.")
       }
     }

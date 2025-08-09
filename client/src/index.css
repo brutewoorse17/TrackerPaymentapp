@@ -73,19 +73,19 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  html { -webkit-overflow-scrolling: touch; }
+
+  * { @apply border-border; }
 
   body {
     @apply font-sans antialiased bg-slate-50 text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-y: auto;
   }
 
-  html, body, #root {
-    height: 100%;
-  }
+  html, body { min-height: 100%; }
+  #root { min-height: 100%; }
 }
 
 @layer utilities {

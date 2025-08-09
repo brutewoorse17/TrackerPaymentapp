@@ -131,31 +131,31 @@ export default function Payments() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Client</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Due Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="min-w-[140px]">Client</TableHead>
+                    <TableHead className="hidden md:table-cell min-w-[220px]">Description</TableHead>
+                    <TableHead className="min-w-[120px] whitespace-nowrap text-right">Amount</TableHead>
+                    <TableHead className="hidden sm:table-cell min-w-[120px] whitespace-nowrap">Due Date</TableHead>
+                    <TableHead className="min-w-[110px]">Status</TableHead>
+                    <TableHead className="text-right min-w-[80px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredPayments?.length ? (
                     filteredPayments.map((payment, index) => (
                       <TableRow key={payment.id} data-testid={`payment-row-${index}`}>
-                        <TableCell className="font-medium" data-testid={`text-client-name-${index}`}>
+                        <TableCell className="font-medium max-w-[200px] truncate" data-testid={`text-client-name-${index}`}>
                           {payment.clientName}
                         </TableCell>
-                        <TableCell data-testid={`text-description-${index}`}>
+                        <TableCell className="hidden md:table-cell max-w-[320px] truncate" data-testid={`text-description-${index}`}>
                           {payment.description}
                         </TableCell>
-                        <TableCell data-testid={`text-amount-${index}`}>
+                        <TableCell className="whitespace-nowrap text-right" data-testid={`text-amount-${index}`}>
                           {formatCurrency(parseFloat(payment.amount))}
                         </TableCell>
-                        <TableCell data-testid={`text-due-date-${index}`}>
+                        <TableCell className="hidden sm:table-cell whitespace-nowrap" data-testid={`text-due-date-${index}`}>
                           {formatDate(payment.dueDate)}
                         </TableCell>
-                        <TableCell data-testid={`badge-status-${index}`}>
+                        <TableCell className="whitespace-nowrap" data-testid={`badge-status-${index}`}>
                           <PaymentStatusBadge status={payment.status} />
                         </TableCell>
                         <TableCell className="text-right">

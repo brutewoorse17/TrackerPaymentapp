@@ -7,6 +7,7 @@ import androidx.room.CoroutinesRoom;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.SharedSQLiteStatement;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
@@ -32,6 +33,8 @@ public final class PaymentDao_Impl implements PaymentDao {
   private final RoomDatabase __db;
 
   private final EntityInsertionAdapter<PaymentEntity> __insertionAdapterOfPaymentEntity;
+
+  private final SharedSQLiteStatement __preparedStmtOfDeleteById;
 
   public PaymentDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
@@ -64,6 +67,14 @@ public final class PaymentDao_Impl implements PaymentDao {
         statement.bindLong(9, entity.getCreatedAt());
       }
     };
+    this.__preparedStmtOfDeleteById = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM payments WHERE id = ?";
+        return _query;
+      }
+    };
   }
 
   @Override
@@ -79,6 +90,31 @@ public final class PaymentDao_Impl implements PaymentDao {
           return Unit.INSTANCE;
         } finally {
           __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteById(final String id, final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteById.acquire();
+        int _argIndex = 1;
+        _stmt.bindString(_argIndex, id);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteById.release(_stmt);
         }
       }
     }, $completion);

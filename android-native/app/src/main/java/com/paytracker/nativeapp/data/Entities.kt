@@ -64,6 +64,9 @@ interface PaymentDao {
 
   @Query("SELECT COUNT(*) FROM payments WHERE clientId = :clientId")
   suspend fun countByClient(clientId: String): Int
+
+  @Query("DELETE FROM payments WHERE id = :id")
+  suspend fun deleteById(id: String)
 }
 
 data class PaymentWithClient(

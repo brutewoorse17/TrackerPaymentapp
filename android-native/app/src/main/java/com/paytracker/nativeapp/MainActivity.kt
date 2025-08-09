@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -135,8 +136,10 @@ class MainActivity : ComponentActivity() {
               )
             },
             floatingActionButton = {
-              if (currentRoute == "payments" || currentRoute == "clients") {
+              if (currentRoute == "payments") {
                 FloatingActionButton(onClick = { showDialog = true; editTarget = null }) { Icon(Icons.Default.Add, contentDescription = "Add") }
+              } else if (currentRoute == "clients") {
+                FloatingActionButton(onClick = { /* open client dialog via nav state */ showClientDialog.value = true }) { Icon(Icons.Default.Add, contentDescription = "Add Client") }
               }
             }
           ) { padding ->
@@ -157,9 +160,11 @@ class MainActivity : ComponentActivity() {
                   )
                 }
                 composable("clients") {
+                  val showClientDialog = remember { mutableStateOf(false) }
                   ClientsScreen(
                     repo = repo,
-                    onRefresh = { scope.launch { refresh() } }
+                    onRefresh = { scope.launch { refresh() } },
+                    externalShowAdd = showClientDialog
                   )
                 }
                 composable("settings") {
@@ -348,16 +353,18 @@ fun SettingsScreen(
         Text("About", style = MaterialTheme.typography.titleMedium)
         Text("PayTracker Native v1.0")
         Text("A lightweight offline-first payment tracker.")
+        Text("Developer: Francis Andei Pelayo")
       }
     }
   }
 }
 
 @Composable
-fun ClientsScreen(repo: com.paytracker.nativeapp.data.Repository, onRefresh: () -> Unit) {
+fun ClientsScreen(repo: com.paytracker.nativeapp.data.Repository, onRefresh: () -> Unit, externalShowAdd: MutableState<Boolean>) {
   var clients by remember { mutableStateOf<List<com.paytracker.nativeapp.data.ClientEntity>>(emptyList()) }
   var loading by remember { mutableStateOf(true) }
   var showAdd by remember { mutableStateOf(false) }
+  LaunchedEffect(externalShowAdd.value) { if (externalShowAdd.value) { showAdd = true; externalShowAdd.value = false } }
   val scope = rememberCoroutineScope()
 
   LaunchedEffect(Unit) {
@@ -365,10 +372,7 @@ fun ClientsScreen(repo: com.paytracker.nativeapp.data.Repository, onRefresh: () 
   }
 
   Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-      Text("Clients", style = MaterialTheme.typography.titleLarge)
-      ElevatedButton(onClick = { showAdd = true }) { Text("Add Client") }
-    }
+    Text("Clients", style = MaterialTheme.typography.titleLarge)
     if (loading) {
       Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
     } else {

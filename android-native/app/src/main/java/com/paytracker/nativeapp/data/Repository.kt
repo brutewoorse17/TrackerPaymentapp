@@ -43,6 +43,30 @@ class Repository(private val db: AppDatabase) {
     db.paymentDao().upsert(p)
   }
 
+  suspend fun deletePayment(paymentId: String) = withContext(Dispatchers.IO) {
+    db.paymentDao().deleteById(paymentId)
+  }
+
+  suspend fun exportPaymentsCsv(): String = withContext(Dispatchers.IO) {
+    val rows = db.paymentDao().listWithClient()
+    val headers = listOf("invoiceNumber","clientName","amount","dueDate","paidDate","status","description")
+    val lines = mutableListOf(headers.joinToString(","))
+    rows.forEach { r ->
+      val p = r.payment
+      val values = listOf(
+        p.invoiceNumber,
+        r.clientName,
+        String.format("%.2f", p.amount),
+        p.dueDate.toString(),
+        (p.paidDate?.toString() ?: ""),
+        p.status,
+        p.description ?: ""
+      ).map { it.replace("\"", "\"\"") }.map { v -> if ("," in v || "\n" in v) "\"$v\"" else v }
+      lines.add(values.joinToString(","))
+    }
+    lines.joinToString("\n")
+  }
+
   suspend fun listClients(): List<ClientEntity> = withContext(Dispatchers.IO) { db.clientDao().list() }
 
   suspend fun addClient(name: String, email: String, company: String?, phone: String?, address: String?): ClientEntity = withContext(Dispatchers.IO) {

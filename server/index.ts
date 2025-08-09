@@ -40,6 +40,13 @@ app.use((req, res, next) => {
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    // Provide a clear message when JSON parsing fails
+    if (err instanceof SyntaxError && (err as any).status === 400 && "body" in err) {
+      return res
+        .status(400)
+        .json({ message: "Invalid JSON body. Ensure Content-Type: application/json and valid JSON syntax." });
+    }
+
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 

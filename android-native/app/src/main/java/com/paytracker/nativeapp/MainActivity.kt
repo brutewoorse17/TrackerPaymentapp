@@ -357,8 +357,7 @@ fun PaymentsScreen(
                   if (row.payment.status != "paid") {
                     TextButton(onClick = {
                       val p = row.payment.copy(status = "paid", paidDate = System.currentTimeMillis())
-                      val scopeRow = rememberCoroutineScope()
-                      scopeRow.launch { repo.upsertPayment(p) }
+                      scope.launch { repo.upsertPayment(p) }
                     }) { Text("Mark Paid") }
                   }
                 }

@@ -101,76 +101,93 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recent payments */}
+      {/* Recent Payments - compact list */}
       <div className="px-3 sm:px-4 lg:px-8 mt-6">
         <Card>
           <CardHeader>
             <CardTitle>Recent Payments</CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Client</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Amount</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-slate-200">
-                  {paymentsLoading ? (
-                    <tr><td className="px-4 py-3" colSpan={4}><Skeleton className="h-6 w-full" /></td></tr>
-                  ) : (
-                    recentPayments?.map((p, idx) => (
-                      <tr key={idx}>
-                        <td className="px-4 py-3">{p.clientName}</td>
-                        <td className="px-4 py-3">{formatCurrency(parseFloat(p.amount))}</td>
-                        <td className="px-4 py-3">{formatDate(p.createdAt)}</td>
-                        <td className="px-4 py-3"><PaymentStatusBadge status={p.status} /></td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+          <CardContent>
+            {paymentsLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex items-center justify-between py-2">
+                    <div className="flex items-center space-x-3">
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                      <div>
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-24 mt-1" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                ))}
+              </div>
+            ) : recentPayments?.length ? (
+              <div className="divide-y divide-slate-100">
+                {recentPayments.map((p) => (
+                  <div key={p.id} className="flex items-center justify-between py-3">
+                    <div className="min-w-0">
+                      <div className="font-medium text-slate-900 truncate">{p.clientName}</div>
+                      <div className="text-xs text-slate-500">{formatDate(p.createdAt)}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold">{formatCurrency(parseFloat(p.amount))}</div>
+                      <div className="mt-1"><PaymentStatusBadge status={p.status} /></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-slate-500 py-4">No recent payments found</div>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Overdue payments */}
+      {/* Overdue Payments - compact list */}
       <div className="px-3 sm:px-4 lg:px-8 mt-6 mb-8">
         <Card>
           <CardHeader>
             <CardTitle>Overdue Payments</CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Client</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Amount</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Due</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-slate-200">
-                  {overdueLoading ? (
-                    <tr><td className="px-4 py-3" colSpan={4}><Skeleton className="h-6 w-full" /></td></tr>
-                  ) : (
-                    overduePayments?.map((p, idx) => (
-                      <tr key={idx}>
-                        <td className="px-4 py-3">{p.clientName}</td>
-                        <td className="px-4 py-3">{formatCurrency(parseFloat(p.amount))}</td>
-                        <td className="px-4 py-3">{formatDate(p.dueDate)}</td>
-                        <td className="px-4 py-3"><PaymentStatusBadge status={p.status} /></td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+          <CardContent>
+            {overdueLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex items-center justify-between py-2">
+                    <div className="flex items-center space-x-3">
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                      <div>
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-24 mt-1" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                ))}
+              </div>
+            ) : overduePayments?.length ? (
+              <div className="divide-y divide-slate-100">
+                {overduePayments.map((p) => {
+                  const daysOverdue = getDaysOverdue(p.dueDate);
+                  return (
+                    <div key={p.id} className="flex items-center justify-between py-3">
+                      <div className="min-w-0">
+                        <div className="font-medium text-slate-900 truncate">{p.clientName}</div>
+                        <div className="text-xs text-slate-500">Due: {formatDate(p.dueDate)}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-semibold">{formatCurrency(parseFloat(p.amount))}</div>
+                        <div className="mt-1"><PaymentStatusBadge status={p.status} daysOverdue={daysOverdue} /></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-sm text-slate-500 py-4">No overdue payments found</div>
+            )}
           </CardContent>
         </Card>
       </div>

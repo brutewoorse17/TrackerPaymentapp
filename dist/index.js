@@ -152,11 +152,7 @@ var MemStorage = class {
     return stats.filter((stat) => stat !== void 0);
   }
   async getRecentPayments(limit = 10) {
-    const allPayments = Array.from(this.payments.values()).filter((p) => p.status === "paid").sort((a, b) => {
-      const aDate = new Date(a.paidDate || a.createdAt);
-      const bDate = new Date(b.paidDate || b.createdAt);
-      return bDate.getTime() - aDate.getTime();
-    }).slice(0, limit);
+    const allPayments = Array.from(this.payments.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, limit);
     return allPayments.map((payment) => {
       const client = this.clients.get(payment.clientId);
       return {

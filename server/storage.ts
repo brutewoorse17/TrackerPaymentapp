@@ -218,12 +218,8 @@ export class MemStorage implements IStorage {
 
   async getRecentPayments(limit: number = 10): Promise<PaymentWithClient[]> {
     const allPayments = Array.from(this.payments.values())
-      .filter(p => p.status === "paid")
-      .sort((a, b) => {
-        const aDate = new Date(a.paidDate || a.createdAt);
-        const bDate = new Date(b.paidDate || b.createdAt);
-        return bDate.getTime() - aDate.getTime();
-      })
+      // Include all payments regardless of status so the dashboard shows the latest activity
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, limit);
 
     return allPayments.map(payment => {

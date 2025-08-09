@@ -43,6 +43,21 @@ class Repository(private val db: AppDatabase) {
     db.paymentDao().upsert(p)
   }
 
+  suspend fun listClients(): List<ClientEntity> = withContext(Dispatchers.IO) { db.clientDao().list() }
+
+  suspend fun addClient(name: String, email: String, company: String?, phone: String?, address: String?): ClientEntity = withContext(Dispatchers.IO) {
+    val c = ClientEntity(name = name, email = email, company = company, phone = phone, address = address)
+    db.clientDao().upsert(c)
+    c
+  }
+
+  suspend fun deleteClient(clientId: String): Boolean = withContext(Dispatchers.IO) {
+    val hasPayments = db.paymentDao().countByClient(clientId) > 0
+    if (hasPayments) return@withContext false
+    db.clientDao().deleteById(clientId)
+    true
+  }
+
   data class Backup(val clients: List<ClientEntity>, val payments: List<PaymentEntity>)
 
   suspend fun exportJson(): String = withContext(Dispatchers.IO) {

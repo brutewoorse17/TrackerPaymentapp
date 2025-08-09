@@ -43,6 +43,12 @@ interface ClientDao {
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun upsert(client: ClientEntity)
+
+  @Query("DELETE FROM clients WHERE id = :id")
+  suspend fun deleteById(id: String)
+
+  @Query("SELECT * FROM clients WHERE id = :id")
+  suspend fun getById(id: String): ClientEntity?
 }
 
 @Dao
@@ -55,6 +61,9 @@ interface PaymentDao {
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun upsert(payment: PaymentEntity)
+
+  @Query("SELECT COUNT(*) FROM payments WHERE clientId = :clientId")
+  suspend fun countByClient(clientId: String): Int
 }
 
 data class PaymentWithClient(

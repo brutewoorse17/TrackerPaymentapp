@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -106,6 +107,14 @@ class MainActivity : ComponentActivity() {
                 }
               )
               NavigationDrawerItem(
+                label = { Text("Clients") },
+                selected = currentRoute == "clients",
+                onClick = {
+                  scopeDrawer.launch { drawerState.close() }
+                  if (currentRoute != "clients") navController.navigate("clients") { popUpTo(0) }
+                }
+              )
+              NavigationDrawerItem(
                 label = { Text("Settings") },
                 selected = currentRoute == "settings",
                 onClick = {
@@ -122,11 +131,11 @@ class MainActivity : ComponentActivity() {
                 navigationIcon = {
                   IconButton(onClick = { scopeDrawer.launch { drawerState.open() } }) { Icon(Icons.Default.Menu, contentDescription = "Menu") }
                 },
-                title = { Text(if (currentRoute == "settings") "Settings" else "Payments") }
+                title = { Text(when (currentRoute) { "settings" -> "Settings"; "clients" -> "Clients"; else -> "Payments" }) }
               )
             },
             floatingActionButton = {
-              if (currentRoute == "payments") {
+              if (currentRoute == "payments" || currentRoute == "clients") {
                 FloatingActionButton(onClick = { showDialog = true; editTarget = null }) { Icon(Icons.Default.Add, contentDescription = "Add") }
               }
             }
@@ -145,6 +154,12 @@ class MainActivity : ComponentActivity() {
                     onEdit = { target -> showDialog = true; editTarget = target },
                     onBackup = { createDoc.launch("paytracker-backup.json") },
                     onRestore = { openDoc.launch(arrayOf("application/json")) }
+                  )
+                }
+                composable("clients") {
+                  ClientsScreen(
+                    repo = repo,
+                    onRefresh = { scope.launch { refresh() } }
                   )
                 }
                 composable("settings") {
@@ -336,4 +351,79 @@ fun SettingsScreen(
       }
     }
   }
+}
+
+@Composable
+fun ClientsScreen(repo: com.paytracker.nativeapp.data.Repository, onRefresh: () -> Unit) {
+  var clients by remember { mutableStateOf<List<com.paytracker.nativeapp.data.ClientEntity>>(emptyList()) }
+  var loading by remember { mutableStateOf(true) }
+  var showAdd by remember { mutableStateOf(false) }
+  val scope = rememberCoroutineScope()
+
+  LaunchedEffect(Unit) {
+    scope.launch { clients = repo.listClients(); loading = false }
+  }
+
+  Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+      Text("Clients", style = MaterialTheme.typography.titleLarge)
+      ElevatedButton(onClick = { showAdd = true }) { Text("Add Client") }
+    }
+    if (loading) {
+      Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+    } else {
+      LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        items(clients, key = { it.id }) { c ->
+          ElevatedCard(Modifier.fillMaxWidth()) {
+            Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+              Column(Modifier.weight(1f)) {
+                Text(c.name, style = MaterialTheme.typography.titleMedium)
+                Text(c.email, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+              }
+              IconButton(onClick = {
+                scope.launch {
+                  val ok = repo.deleteClient(c.id)
+                  if (ok) { clients = repo.listClients(); onRefresh() }
+                }
+              }) { Icon(Icons.Default.Delete, contentDescription = "Delete") }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (showAdd) {
+    AddClientDialog(onDismiss = { showAdd = false }, onSave = { name, email, company, phone, addr ->
+      scope.launch {
+        repo.addClient(name, email, company, phone, addr)
+        clients = repo.listClients(); onRefresh(); showAdd = false
+      }
+    })
+  }
+}
+
+@Composable
+fun AddClientDialog(onDismiss: () -> Unit, onSave: (String, String, String?, String?, String?) -> Unit) {
+  var name by remember { mutableStateOf("") }
+  var email by remember { mutableStateOf("") }
+  var company by remember { mutableStateOf("") }
+  var phone by remember { mutableStateOf("") }
+  var address by remember { mutableStateOf("") }
+
+  AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text("Add Client") },
+    text = {
+      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") })
+        OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
+        OutlinedTextField(value = company, onValueChange = { company = it }, label = { Text("Company") })
+        OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("Phone") })
+        OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Address") })
+      }
+    },
+    confirmButton = { TextButton(onClick = { onSave(name, email, company.ifBlank { null }, phone.ifBlank { null }, address.ifBlank { null }) }) { Text("Save") } },
+    dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+  )
 }
